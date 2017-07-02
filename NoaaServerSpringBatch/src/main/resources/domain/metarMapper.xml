@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.noaaServerSpringBatch.dao.MetarDao" >
+
+	<update id="truncateMetarTemp" >
+		truncate table metar_temp reuse storage
+	</update>
+	
+	<insert id="insertMetarTemp" parameterType="com.noaaServerSpringBatch.schema.metar.METAR">
+		insert into metar_temp (
+				raw_text,
+				station_id,
+				observation_time,
+				latitude,
+				longitude,
+				temp_c,
+				dewpoint_c,
+				wind_dir_degrees,
+				wind_speed_kt,
+				wind_gust_kt,
+				visibility_statute_mi,
+				altim_in_hg,
+				sea_level_pressure_mb,
+				corrected,
+				auto,
+				auto_station,
+				maintenance_indicator_on,
+				no_signal,
+				lightning_sensor_off,
+				freezing_rain_sensor_off,
+				present_weather_sensor_off,
+				wx_string,
+				
+				sky_cover_1,
+				cloud_base_ft_agl_1,
+				sky_cover_2,
+				cloud_base_ft_agl_2,
+				sky_cover_3,
+				cloud_base_ft_agl_3,
+				sky_cover_4,
+				cloud_base_ft_agl_4,
+				
+				flight_category,
+				three_hr_pressure_tendency_mb,
+				maxt_c,
+				mint_c,
+				maxt24hr_c,
+				mint24hr_c,
+				precip_in,
+				pcp3hr_in,
+				pcp6hr_in,
+				pcp24hr_in,
+				snow_in,
+				vert_vis_ft,
+				metar_type,
+				elevation_m
+		) values (
+				#{rawText},
+				#{stationId},
+				#{observationTime},
+				#{latitude},
+				#{longitude},
+				#{tempC},
+				#{dewpointC},
+				#{windDirDegrees},
+				#{windSpeedKt},
+				#{windGustKt},
+				#{visibilityStatuteMi},
+				#{altimInHg},
+				#{seaLevelPressureMb},
+				
+				case when #{qualityControlFlags.corrected}					= 'TRUE' then 'Y' else null end,
+				case when #{qualityControlFlags.auto}						= 'TRUE' then 'Y' else null end,
+				case when #{qualityControlFlags.autoStation}				= 'TRUE' then 'Y' else null end,
+				case when #{qualityControlFlags.maintenanceIndicatorOn}		= 'TRUE' then 'Y' else null end,
+				case when #{qualityControlFlags.noSignal} 					= 'TRUE' then 'Y' else null end,
+				case when #{qualityControlFlags.lightningSensorOff}			= 'TRUE' then 'Y' else null end,
+				case when #{qualityControlFlags.freezingRainSensorOff}		= 'TRUE' then 'Y' else null end,
+				case when #{qualityControlFlags.presentWeatherSensorOff}	= 'TRUE' then 'Y' else null end,
+				
+				
+				#{wxString},
+				
+				<if test="skyCondition.size &gt;= 1">
+					#{skyCondition[0].skyCover},
+					#{skyCondition[0].cloudBaseFtAgl},
+				</if>
+				<if test="skyCondition.size &lt; 1">
+					null,
+					null,
+				</if>
+
+				<if test="skyCondition.size &gt;= 2">
+					#{skyCondition[1].skyCover},
+					#{skyCondition[1].cloudBaseFtAgl},
+				</if>
+				<if test="skyCondition.size &lt; 2">
+					null,
+					null,
+				</if>
+				
+				<if test="skyCondition.size &gt;= 3">
+					#{skyCondition[2].skyCover},
+					#{skyCondition[2].cloudBaseFtAgl},
+				</if>
+				<if test="skyCondition.size &lt; 3">
+					null,
+					null,
+				</if>
+				
+				<if test="skyCondition.size &gt;= 4">
+					#{skyCondition[3].skyCover},
+					#{skyCondition[3].cloudBaseFtAgl},
+				</if>
+				<if test="skyCondition.size &lt; 4">
+					null,
+					null,
+				</if>
+				
+				#{flightCategory},
+				#{threeHrPressureTendencyMb},
+				#{maxTC},
+				#{minTC},
+				#{maxT24HrC},
+				#{minT24HrC},
+				#{precipIn},
+				#{pcp3HrIn},
+				#{pcp6HrIn},
+				#{pcp24HrIn},
+				#{snowIn},
+				#{vertVisFt},
+				#{metarType},
+				#{elevationM}
+		)
+	</insert>
+
+	<insert id="mergeMetar" >
+		merge into metar d
+		using (
+		  select
+		    raw_text,
+		    station_id,
+		    to_date(replace(replace(observation_time,'T',' '), 'Z',' '),'yyyy-mm-dd hh24:mi:ss ') observation_time,
+		    latitude,
+		    longitude,
+		    temp_c,
+		    dewpoint_c,
+		    wind_dir_degrees,
+		    wind_speed_kt,
+		    wind_gust_kt,
+		    visibility_statute_mi,
+		    altim_in_hg,
+		    sea_level_pressure_mb,
+		    corrected,
+		    auto,
+		    auto_station,
+		    maintenance_indicator_on,
+		    no_signal,
+		    lightning_sensor_off,
+		    freezing_rain_sensor_off,
+		    present_weather_sensor_off,
+		    wx_string,
+		    sky_cover_1,
+		    cloud_base_ft_agl_1,
+		    sky_cover_2,
+		    cloud_base_ft_agl_2,
+		    sky_cover_3,
+		    cloud_base_ft_agl_3,
+		    sky_cover_4,
+		    cloud_base_ft_agl_4,
+		    flight_category,
+		    three_hr_pressure_tendency_mb,
+		    maxt_c,
+		    mint_c,
+		    maxt24hr_c,
+		    mint24hr_c,
+		    precip_in,
+		    pcp3hr_in,
+		    pcp6hr_in,
+		    pcp24hr_in,
+		    snow_in,
+		    vert_vis_ft,
+		    metar_type,
+		    elevation_m
+		  from (/* remove duplicates */ select m.*, row_number() over (partition by m.station_id, m.observation_time order by m.station_id) as row_number from metar_temp m) where row_number=1) s
+		    on (d.station_id = s.station_id and
+		        d.observation_time = s.observation_time)
+		when not matched
+		then
+		insert (
+		  raw_text, station_id, observation_time,
+		  latitude, longitude, temp_c,
+		  dewpoint_c, wind_dir_degrees, wind_speed_kt,
+		  wind_gust_kt, visibility_statute_mi, altim_in_hg,
+		  sea_level_pressure_mb, corrected, auto,
+		  auto_station, maintenance_indicator_on, no_signal,
+		  lightning_sensor_off, freezing_rain_sensor_off, present_weather_sensor_off,
+		  wx_string, sky_cover_1, cloud_base_ft_agl_1,
+		  sky_cover_2, cloud_base_ft_agl_2, sky_cover_3,
+		  cloud_base_ft_agl_3, sky_cover_4, cloud_base_ft_agl_4,
+		  flight_category, three_hr_pressure_tendency_mb, maxt_c,
+		  mint_c, maxt24hr_c, mint24hr_c,
+		  precip_in, pcp3hr_in, pcp6hr_in,
+		  pcp24hr_in, snow_in, vert_vis_ft,
+		  metar_type, elevation_m)
+		values (
+		  s.raw_text, s.station_id, s.observation_time,
+		  s.latitude, s.longitude, s.temp_c,
+		  s.dewpoint_c, s.wind_dir_degrees, s.wind_speed_kt,
+		  s.wind_gust_kt, s.visibility_statute_mi, s.altim_in_hg,
+		  s.sea_level_pressure_mb, s.corrected, s.auto,
+		  s.auto_station, s.maintenance_indicator_on, s.no_signal,
+		  s.lightning_sensor_off, s.freezing_rain_sensor_off, s.present_weather_sensor_off,
+		  s.wx_string, s.sky_cover_1, s.cloud_base_ft_agl_1,
+		  s.sky_cover_2, s.cloud_base_ft_agl_2, s.sky_cover_3,
+		  s.cloud_base_ft_agl_3, s.sky_cover_4, s.cloud_base_ft_agl_4,
+		  s.flight_category, s.three_hr_pressure_tendency_mb, s.maxt_c,
+		  s.mint_c, s.maxt24hr_c, s.mint24hr_c,
+		  s.precip_in, s.pcp3hr_in, s.pcp6hr_in,
+		  s.pcp24hr_in, s.snow_in, s.vert_vis_ft,
+		  s.metar_type, s.elevation_m)
+	</insert>
+</mapper>
