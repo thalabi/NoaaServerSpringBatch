@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>NoaaServerSpringBatch</groupId>
   <artifactId>NoaaServerSpringBatch</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0.1-RELEASE</version>
   <name>NoaaServerSpringBatch</name>
   <description>Downloads WX Data</description>
 
