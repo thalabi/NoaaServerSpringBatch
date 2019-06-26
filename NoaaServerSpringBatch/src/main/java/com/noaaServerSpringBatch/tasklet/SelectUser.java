@@ -20,7 +20,7 @@ public class SelectUser implements Tasklet {
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 		String user = selectUserDao.selectUser();
-		LOGGER.debug(user);
+		LOGGER.info(user);
 		return RepeatStatus.FINISHED;
 	}
 
