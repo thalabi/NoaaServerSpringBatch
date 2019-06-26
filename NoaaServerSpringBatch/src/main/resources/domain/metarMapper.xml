@@ -220,4 +220,9 @@
 		  s.pcp24hr_in, s.snow_in, s.vert_vis_ft,
 		  s.metar_type, s.elevation_m)
 	</insert>
+
+	<update id="copyMetarTempTable">
+		create table metar_temp_${timestamp} as select * from metar_temp
+	</update>
+
 </mapper>

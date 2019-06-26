@@ -12,6 +12,9 @@ public interface MetarDao {
 	   	@Param("metar") METAR metar);
 
 	int mergeMetar();
+	
+	int createBackupTempTable(@Param("timestamp") String timestamp);
+	int copyMetarTempTable(@Param("timestamp") String timestamp);
 }
 
 

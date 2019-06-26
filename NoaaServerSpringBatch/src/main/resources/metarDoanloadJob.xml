@@ -73,6 +73,10 @@
 		scope="step">
 	</bean>
 	
+	<bean id="saveMetarTempTable" class="com.noaaServerSpringBatch.tasklet.SaveMetarTempTable"
+		scope="step">
+	</bean>
+
 	<batch:job id="metarDoanloadJob">
 	  <batch:step id="decompressStep" next="metarTransformerStep">
 		<batch:tasklet ref="decompressTasklet" transaction-manager="springBatchTransactionManager" />
@@ -92,6 +96,11 @@
 	  </batch:step>
 	  <batch:step id="mergeMetarStep">
 		<batch:tasklet ref="mergeMetar" transaction-manager="springBatchTransactionManager" />
+		<batch:next on="FAILED" to="saveMetarTempTableStep" />
+		<batch:end on="*" />
+	  </batch:step>
+	  <batch:step id="saveMetarTempTableStep">
+		<batch:tasklet ref="saveMetarTempTable" transaction-manager="springBatchTransactionManager" />
 	  </batch:step>
 	</batch:job>
 
