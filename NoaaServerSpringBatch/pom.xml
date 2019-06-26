@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>NoaaServerSpringBatch</groupId>
   <artifactId>NoaaServerSpringBatch</artifactId>
-  <version>1.0.1-RELEASE</version>
+  <version>1.0.2-RELEASE</version>
   <name>NoaaServerSpringBatch</name>
   <description>Downloads WX Data</description>
 
@@ -59,8 +59,8 @@
   	</dependency>
   	<dependency>
   		<groupId>com.oracle</groupId>
-  		<artifactId>ojdbc7</artifactId>
-  		<version>12.1.0.2</version>
+  		<artifactId>ojdbc8</artifactId>
+  		<version>19.3.0.0.0</version>
   	</dependency>
   	<dependency>
   		<groupId>org.mybatis</groupId>
