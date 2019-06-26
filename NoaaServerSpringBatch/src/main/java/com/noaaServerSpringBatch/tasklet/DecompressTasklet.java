@@ -40,12 +40,12 @@ public class DecompressTasklet implements Tasklet {
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
-		LOGGER.debug("inputResource: {}", inputResource.toString());
+		LOGGER.info("inputResource: {}", inputResource);
 
-		GZIPInputStream zis = metarService.getDownloadFile(inputResource);
+		GZIPInputStream zis = metarService.getDownloadFile(inputResource); // this call is retried. see com.noaaServerSpringBatch.listener.RetryLogger
 		
 		String effectiveTargetDirectory = StringUtils.isEmpty(targetDirectory) ? System.getProperty("java.io.tmpdir")+File.separator+WORK_DIR : targetDirectory;
-		LOGGER.debug("effectiveTargetDirectory: {}", effectiveTargetDirectory);
+		LOGGER.info("effectiveTargetDirectory: {}", effectiveTargetDirectory);
 		File targetDirectoryAsFile = new File(effectiveTargetDirectory);
 		if (!targetDirectoryAsFile.exists()) {
 			FileUtils.forceMkdir(targetDirectoryAsFile);
