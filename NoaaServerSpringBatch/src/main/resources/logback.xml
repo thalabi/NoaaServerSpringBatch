@@ -1,29 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration packagingData="true" >
+<configuration packagingData="true">
 
-	<property name="applicationPackage" value="com.noaaServerSpringBatch" />
-	<property name="applicationPackage2" value="com.noaaServerSpringBatch.dao.MetarDao" />
+	<property name="applicationPackage"
+		value="com.noaaServerSpringBatch" />
+	<property name="applicationPackage2"
+		value="com.noaaServerSpringBatch.dao.MetarDao" />
 
-		<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-			<encoder>
-				<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %36.36logger{36}.%-20.20(%method\(\)) - %msg%n</pattern>
-<!-- 				<pattern>%d{HH:mm:ss.SSS} %-5level %logger{0}.%method\(\) - %msg%n</pattern> -->
+	<appender name="STDOUT"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level
+				%36.36logger{36}.%-20.20(%method\(\)) - %msg%n</pattern>
+			<!-- <pattern>%d{HH:mm:ss.SSS} %-5level %logger{0}.%method\(\) - %msg%n</pattern> -->
 
-<!-- 				<pattern>%d{HH:mm:ss.SSS} %-5level %logger.%method\(\) - %msg%n</pattern> -->
-				
-<!-- 				<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0}.%method\(\) - %msg%n</pattern> -->
-			</encoder>
-		</appender>
+			<!-- <pattern>%d{HH:mm:ss.SSS} %-5level %logger.%method\(\) - %msg%n</pattern> -->
 
+			<!-- <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0}.%method\(\) 
+				- %msg%n</pattern> -->
+		</encoder>
+	</appender>
+
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>NoaaServerSpringBatch.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+			<!-- keep 30 days' worth of history capped at 3GB total size -->
+			<maxHistory>7</maxHistory>
+			<totalSizeCap>3GB</totalSizeCap>
+
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
 
 	<logger name="${applicationPackage}" level="debug" />
 	<logger name="${applicationPackage2}" level="info" />
-	
+
 	<logger name="org.springframework.batch" level="info" />
 
 	<root level="error">
-		<appender-ref ref="STDOUT" />
+<!-- 		<appender-ref ref="STDOUT" /> -->
+		<appender-ref ref="FILE" />
 	</root>
 
 </configuration>
